@@ -14,7 +14,164 @@ class Site extends CI_Controller
 			redirect( base_url() . 'index.php/login', 'refresh' );
 		} //$is_logged_in !== 'true' || !isset( $is_logged_in )
 	}
-	function checkaccess($access)
+ public function createreviews()
+{
+$access=array("1");
+$this->checkaccess($access);
+$data["page"]="createreviews";
+
+$data["title"]="Create photos";
+$this->load->view("template",$data);
+}
+public function createreviewsssubmit() 
+{
+    $access=array("1");
+$this->checkaccess($access);
+$this->form_validation->set_rules("name","name","trim");
+$this->form_validation->set_rules("order","order","trim");
+//$this->form_validation->set_rules("image","image","trim");
+$this->form_validation->set_rules("photoalbum","photoalbum","trim");
+if($this->form_validation->run()==FALSE)
+{
+$data["alerterror"]=validation_errors();
+$data["page"]="createphotos";
+$data["title"]="Create photos";
+$this->load->view("template",$data);
+}
+else
+{
+$name=$this->input->get_post("name");
+$order=$this->input->get_post("order");
+//$image=$this->input->get_post("image");
+$photoalbum=$this->input->get_post("photoalbum");
+if($this->photos_model->create($name,$order,$image,$photoalbum)==0)
+$data["alerterror"]="New photos could not be created.";
+else
+$data["alertsuccess"]="photos created Successfully.";
+  $data["redirect"]="site/viewphotos?id=".$photoalbum;
+        $this->load->view("redirect2",$data);
+}
+}
+public function editusersreview()
+{
+$access=array("1");
+$this->checkaccess($access);
+$this->checkaccess($access);
+$data["page2"]="block/userrevieewblock";
+$data["title"]="Edit events";
+$data["page"]="editusersreview";
+$data["title"]="Edit photoalbum";
+//$data["status"]=$this->photoalbum_model->getstatusdropdown();
+$id=$this->input->get("id");
+$data["before"]=$this->relianceuser_model->beforeedit($id);
+  $this->load->view("templatewith2",$data);
+}
+public function viewreviews()
+{
+$access=array("1");
+$this->checkaccess($access);
+$data["page"]="viewuser";
+$data["page2"]="block/userrevieewblock";
+$reviewid=$this->input->get('id');
+$data['before']=$this->relianceuser_model->beforeedit1($reviewid);
+$data["title"]="View photos";
+$this->load->view("template",$data);
+
+}
+
+    function users_message()
+    {
+        $access = array("1");
+		$this->checkaccess($access);
+		$data['page']='viewusersmessage';
+        $data['base_url'] = site_url("site/usersmessagejson");
+        $data['title']='View Users';
+		$this->load->view('template',$data);
+    }
+        function  usersmessagejson()
+	{
+		$access = array("1");
+		$this->checkaccess($access);
+        
+        
+        $elements=array();
+        $elements[0]=new stdClass();
+        $elements[0]->field="`users`.`id`";
+        $elements[0]->sort="1";
+        $elements[0]->header="ID";
+        $elements[0]->alias="id";
+        
+        
+        $elements[1]=new stdClass();
+        $elements[1]->field="`users`.`name`";
+        $elements[1]->sort="1";
+        $elements[1]->header="Name";
+        $elements[1]->alias="name";
+        
+        $elements[2]=new stdClass();
+        $elements[2]->field="`users`.`email`";
+        $elements[2]->sort="1";
+        $elements[2]->header="email";
+        $elements[2]->alias="email";
+        
+        $elements[3]=new stdClass();
+        $elements[3]->field="`users`.`phone`";
+        $elements[3]->sort="1";
+        $elements[3]->header="phone";
+        $elements[3]->alias="phone";
+        
+        $elements[4]=new stdClass();
+        $elements[4]->field="`users`.`message`";
+        $elements[4]->sort="1";
+        $elements[4]->header="message";
+        $elements[4]->alias="message";
+//        
+        $elements[5]=new stdClass();
+        $elements[5]->field="`users`.`dots`";
+        $elements[5]->sort="1";
+        $elements[5]->header="dots";
+        $elements[5]->alias="dots";
+//       
+        $elements[6]=new stdClass();
+        $elements[6]->field="`users`.`jerseyscore`";
+        $elements[6]->sort="1";
+        $elements[6]->header="jerseyscore";
+        $elements[6]->alias="jerseyscore";
+//       
+        $elements[7]=new stdClass();
+        $elements[7]->field="`users`.`testtime`";
+        $elements[7]->sort="1";
+        $elements[7]->header="testtime";
+        $elements[7]->alias="testtime";
+       
+        $elements[8]=new stdClass();
+        $elements[8]->field="`users`.`certificate`";
+        $elements[8]->sort="1";
+        $elements[8]->header="certificate";
+        $elements[8]->alias="certificate";
+        
+        $search=$this->input->get_post("search");
+        $pageno=$this->input->get_post("pageno");
+        $orderby=$this->input->get_post("orderby");
+        $orderorder=$this->input->get_post("orderorder");
+        $maxrow=$this->input->get_post("maxrow");
+        if($maxrow=="")
+        {
+            $maxrow=20;
+        }
+        
+        if($orderby=="")
+        {
+            $orderby="id";
+            $orderorder="ASC";
+        }
+       
+        $data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `users`");
+        
+		$this->load->view("json",$data);
+	} 
+    
+	function  checkaccess($access)
 	{
 		$accesslevel=$this->session->userdata('accesslevel');
 		if(!in_array($accesslevel,$access))
@@ -378,12 +535,12 @@ $elements[4]->sort="1";
 $elements[4]->header="description";
 $elements[4]->alias="description";
 $elements[5]=new stdClass();
-$elements[5]->field="`reliance_events`.`photoalbum`";
+$elements[5]->field="`reliance_events`.`name`";
 $elements[5]->sort="1";
 $elements[5]->header="photoalbum";
 $elements[5]->alias="photoalbum";
 $elements[6]=new stdClass();
-$elements[6]->field="`reliance_events`.`videoalbum`";
+$elements[6]->field="`reliance_videoalbum`.`name`";
 $elements[6]->sort="1";
 $elements[6]->header="videoalbum";
 $elements[6]->alias="videoalbum";
@@ -401,7 +558,7 @@ if($orderby=="")
 $orderby="id";
 $orderorder="ASC";
 }
-$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_events`");
+$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_events` INNER JOIN `reliance_photoalbum` ON  `reliance_photoalbum`.`id`=`reliance_events`.`photoalbum` INNER JOIN `reliance_videoalbum` ON `reliance_videoalbum`.`id`=`reliance_events`.`videoalbum` ");
 $this->load->view("json",$data);
 }
 
@@ -410,6 +567,8 @@ public function createevents()
 $access=array("1");
 $this->checkaccess($access);
 $data["page"]="createevents";
+$data["photoalbum"]=$this->photos_model->getphotoalbumdropdown();
+$data["videoalbum"]=$this->videos_model->getvideoalbumdropdown();
 $data["title"]="Create events";
 $this->load->view("template",$data);
 }
@@ -417,8 +576,41 @@ public function createeventssubmit()
 {
 $access=array("1");
 $this->checkaccess($access);
+$config['upload_path'] = './uploads/';
+			$config['allowed_types'] = 'gif|jpg|png|jpeg';
+			$this->load->library('upload', $config);
+			$filename="image";
+			$image="";
+			if (  $this->upload->do_upload($filename))
+			{
+				$uploaddata = $this->upload->data();
+				$image=$uploaddata['file_name'];
+                
+                $config_r['source_image']   = './uploads/' . $uploaddata['file_name'];
+                $config_r['maintain_ratio'] = TRUE;
+                $config_t['create_thumb'] = FALSE;///add this
+                $config_r['width']   = 800;
+                $config_r['height'] = 800;
+                $config_r['quality']    = 100;
+                //end of configs
+
+                $this->load->library('image_lib', $config_r); 
+                $this->image_lib->initialize($config_r);
+                if(!$this->image_lib->resize())
+                {
+                    echo "Failed." . $this->image_lib->display_errors();
+                    //return false;
+                }  
+                else
+                {
+                    //print_r($this->image_lib->dest_image);
+                    //dest_image
+                    $image=$this->image_lib->dest_image;
+                    //return false;
+                }
+            }
 $this->form_validation->set_rules("name","name","trim");
-$this->form_validation->set_rules("image","image","trim");
+//$this->form_validation->set_rules("image","image","trim");
 $this->form_validation->set_rules("venue","venue","trim");
 $this->form_validation->set_rules("description","description","trim");
 $this->form_validation->set_rules("photoalbum","photoalbum","trim");
@@ -433,7 +625,7 @@ $this->load->view("template",$data);
 else
 {
 $name=$this->input->get_post("name");
-$image=$this->input->get_post("image");
+//$image=$this->input->get_post("image");
 $venue=$this->input->get_post("venue");
 $description=$this->input->get_post("description");
 $photoalbum=$this->input->get_post("photoalbum");
@@ -450,39 +642,83 @@ public function editevents()
 {
 $access=array("1");
 $this->checkaccess($access);
-$data["page"]="editevents";
+    $access=array("1");
+        $this->checkaccess($access);
+       $data["page"]="editevents";
+  $data["photoalbum"]=$this->photos_model->getphotoalbumdropdown();
+$data["videoalbum"]=$this->videos_model->getvideoalbumdropdown();   
 $data["title"]="Edit events";
 $data["before"]=$this->events_model->beforeedit($this->input->get("id"));
-$this->load->view("template",$data);
+    $this->load->view("template",$data);
+
 }
 public function editeventssubmit()
 {
-$access=array("1");
-$this->checkaccess($access);
-$this->form_validation->set_rules("id","id","trim");
-$this->form_validation->set_rules("name","name","trim");
-$this->form_validation->set_rules("image","image","trim");
-$this->form_validation->set_rules("venue","venue","trim");
-$this->form_validation->set_rules("description","description","trim");
-$this->form_validation->set_rules("photoalbum","photoalbum","trim");
-$this->form_validation->set_rules("videoalbum","videoalbum","trim");
-if($this->form_validation->run()==FALSE)
-{
-$data["alerterror"]=validation_errors();
-$data["page"]="editevents";
-$data["title"]="Edit events";
-$data["before"]=$this->events_model->beforeedit($this->input->get("id"));
-$this->load->view("template",$data);
-}
-else
-{
-$id=$this->input->get_post("id");
+    $access=array("1");
+    $this->checkaccess($access);
+    $this->form_validation->set_rules("id","id","trim");
+    $this->form_validation->set_rules("name","name","trim");
+    //$this->form_validation->set_rules("image","image","trim");
+    $this->form_validation->set_rules("venue","venue","trim");
+    $this->form_validation->set_rules("description","description","trim");
+    $this->form_validation->set_rules("photoalbum","photoalbum","trim");
+    $this->form_validation->set_rules("videoalbum","videoalbum","trim");
+    if($this->form_validation->run()==FALSE)
+    {
+        $data["alerterror"]=validation_errors();
+        $data["page"]="editevents";
+        $data["title"]="Edit events";
+        $data["before"]=$this->events_model->beforeedit($this->input->get("id"));
+        $this->load->view("template",$data);
+    }
+    else
+    {
+        $id=$this->input->get_post("id");
 $name=$this->input->get_post("name");
-$image=$this->input->get_post("image");
+      $config['upload_path'] = './uploads/';
+			$config['allowed_types'] = 'gif|jpg|png|jpeg';
+			$this->load->library('upload', $config);
+			$filename="image";
+			$image="";
+			if ($this->upload->do_upload($filename))
+			{
+				$uploaddata = $this->upload->data();
+				$image=$uploaddata['file_name'];
+                echo "the image is".$image;
+                $config_r['source_image']='./uploads/' . $uploaddata['file_name'];
+                $config_r['maintain_ratio']=TRUE;
+                $config_t['create_thumb']=FALSE;///add this
+                $config_r['width']=800;
+                $config_r['height']=800;
+                $config_r['quality']=100;
+                //end of configs
+
+                $this->load->library('image_lib', $config_r); 
+                $this->image_lib->initialize($config_r);
+                if(!$this->image_lib->resize())
+                {
+                    echo "Failed.".$this->image_lib->display_errors();
+                }  
+                else
+                {
+                    $image=$this->image_lib->dest_image;
+                }
+                
+			}
+        if($image=="")
+        {
+        $image=$this->events_model->getimage($id);
+          $image=$image->image;
+//            echo "image is".$image;
+//            
+        }
+
+//$image=$this->input->get_post("image");
 $venue=$this->input->get_post("venue");
 $description=$this->input->get_post("description");
 $photoalbum=$this->input->get_post("photoalbum");
 $videoalbum=$this->input->get_post("videoalbum");
+    
 if($this->events_model->edit($id,$name,$image,$venue,$description,$photoalbum,$videoalbum)==0)
 $data["alerterror"]="New events could not be Updated.";
 else
@@ -527,7 +763,7 @@ $elements[2]->sort="1";
 $elements[2]->header="order";
 $elements[2]->alias="order";
 $elements[3]=new stdClass();
-$elements[3]->field="`reliance_photoalbum`.`status`";
+$elements[3]->field="`status`.`name`";
 $elements[3]->sort="1";
 $elements[3]->header="status";
 $elements[3]->alias="status";
@@ -545,7 +781,8 @@ if($orderby=="")
 $orderby="id";
 $orderorder="ASC";
 }
-$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_photoalbum`");
+$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_photoalbum`
+ INNER JOIN `status` ON `reliance_photoalbum`.`status`=`status`.`id`");
 $this->load->view("json",$data);
 }
 
@@ -553,6 +790,7 @@ public function createphotoalbum()
 {
 $access=array("1");
 $this->checkaccess($access);
+$data["status"]=$this->photoalbum_model->getstatusdropdown();
 $data["page"]="createphotoalbum";
 $data["title"]="Create photoalbum";
 $this->load->view("template",$data);
@@ -588,10 +826,14 @@ public function editphotoalbum()
 {
 $access=array("1");
 $this->checkaccess($access);
+    $this->checkaccess($access);
+       $data["page2"]="block/relianceblock";
+$data["title"]="Edit events";
 $data["page"]="editphotoalbum";
 $data["title"]="Edit photoalbum";
+$data["status"]=$this->photoalbum_model->getstatusdropdown();
 $data["before"]=$this->photoalbum_model->beforeedit($this->input->get("id"));
-$this->load->view("template",$data);
+  $this->load->view("templatewith2",$data);
 }
 public function editphotoalbumsubmit()
 {
@@ -635,55 +877,71 @@ public function viewphotos()
 {
 $access=array("1");
 $this->checkaccess($access);
-$data["page"]="viewphotos";
-$data["base_url"]=site_url("site/viewphotosjson");
-$data["title"]="View photos";
-$this->load->view("template",$data);
+   
+      $data["page"]="viewphotos";
+        $data["page2"]="block/relianceblock";
+        $photoalbumid=$this->input->get('id');
+    $data['before']=$this->photoalbum_model->beforeedit($photoalbumid);
+//     $data['before']=$this->campaign_model->beforeedit($photoalbumid);
+//    echo "campaign is".$photoalbumid;
+       $data["base_url"]=site_url("site/viewphotosjson?id=".$photoalbumid);
+//        print_r($data["base_url"]);
+       $data["title"]="View photos";
+        $this->load->view("templatewith2",$data);
+
 }
 function viewphotosjson()
 {
-$elements=array();
-$elements[0]=new stdClass();
-$elements[0]->field="`reliance_photos`.`id`";
-$elements[0]->sort="1";
-$elements[0]->header="id";
-$elements[0]->alias="id";
-$elements[1]=new stdClass();
-$elements[1]->field="`reliance_photos`.`name`";
-$elements[1]->sort="1";
-$elements[1]->header="name";
-$elements[1]->alias="name";
-$elements[2]=new stdClass();
-$elements[2]->field="`reliance_photos`.`order`";
-$elements[2]->sort="1";
-$elements[2]->header="order";
-$elements[2]->alias="order";
-$elements[3]=new stdClass();
-$elements[3]->field="`reliance_photos`.`image`";
-$elements[3]->sort="1";
-$elements[3]->header="image";
-$elements[3]->alias="image";
-$elements[4]=new stdClass();
-$elements[4]->field="`reliance_photos`.`photoalbum`";
-$elements[4]->sort="1";
-$elements[4]->header="photoalbum";
-$elements[4]->alias="photoalbum";
-$search=$this->input->get_post("search");
-$pageno=$this->input->get_post("pageno");
-$orderby=$this->input->get_post("orderby");
-$orderorder=$this->input->get_post("orderorder");
-$maxrow=$this->input->get_post("maxrow");
-if($maxrow=="")
-{
-$maxrow=20;
-}
-if($orderby=="")
-{
-$orderby="id";
-$orderorder="ASC";
-}
-$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_photos`");
-$this->load->view("json",$data);
+        $photoalbumid=$this->input->get('id'); 
+        $elements=array();
+        $elements[0]=new stdClass();
+        $elements[0]->field="`reliance_photos`.`id`";
+        $elements[0]->sort="1";
+        $elements[0]->header="id";
+        $elements[0]->alias="id";
+        $elements[1]=new stdClass();
+        $elements[1]->field="`reliance_photos`.`name`";
+        $elements[1]->sort="1";
+        $elements[1]->header="name";
+        $elements[1]->alias="name";
+        $elements[2]=new stdClass();
+        $elements[2]->field="`reliance_photos`.`order`";
+        $elements[2]->sort="1";
+        $elements[2]->header="order";
+        $elements[2]->alias="order";
+        $elements[3]=new stdClass();
+        $elements[3]->field="`reliance_photos`.`image`";
+        $elements[3]->sort="1";
+        $elements[3]->header="image";
+        $elements[3]->alias="image";
+        $elements[4]=new stdClass();
+        $elements[4]->field="`reliance_photoalbum`.`name`";
+        $elements[4]->sort="1";
+        $elements[4]->header="photoalbum";
+        $elements[4]->alias="photoalbum";
+
+        $elements[5]=new stdClass();
+        $elements[5]->field="`reliance_photos`.`photoalbum`";
+        $elements[5]->sort="1";
+        $elements[5]->header="photoid";
+        $elements[5]->alias="photoid";
+
+        $search=$this->input->get_post("search");
+        $pageno=$this->input->get_post("pageno");
+        $orderby=$this->input->get_post("orderby");
+        $orderorder=$this->input->get_post("orderorder");
+        $maxrow=$this->input->get_post("maxrow");
+        if($maxrow=="")
+        {
+        $maxrow=20;
+        }
+        if($orderby=="")
+        {
+        $orderby="id";
+        $orderorder="ASC";
+        }
+        $data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_photos` INNER JOIN `reliance_photoalbum` ON `reliance_photos`.`photoalbum`=`reliance_photoalbum`.`id`"," WHERE `reliance_photos`.`photoalbum` ='$photoalbumid'");
+        $this->load->view("json",$data);
 }
 
 public function createphotos()
@@ -691,16 +949,48 @@ public function createphotos()
 $access=array("1");
 $this->checkaccess($access);
 $data["page"]="createphotos";
+$data["photoalbum"]=$this->photos_model->getphotoalbumdropdown();
 $data["title"]="Create photos";
 $this->load->view("template",$data);
 }
 public function createphotossubmit() 
 {
-$access=array("1");
+    $access=array("1");
 $this->checkaccess($access);
+  $config['upload_path'] = './uploads/';
+			$config['allowed_types'] = 'gif|jpg|png|jpeg';
+			$this->load->library('upload', $config);
+			$filename="image";
+			$image="";
+			if ($this->upload->do_upload($filename))
+			{
+				$uploaddata = $this->upload->data();
+				$image=$uploaddata['file_name'];
+//                echo "the image is".$image;
+                $config_r['source_image']='./uploads/' . $uploaddata['file_name'];
+                $config_r['maintain_ratio']=TRUE;
+                $config_t['create_thumb']=FALSE;///add this
+                $config_r['width']=800;
+                $config_r['height']=800;
+                $config_r['quality']=100;
+                //end of configs
+
+                $this->load->library('image_lib', $config_r); 
+                $this->image_lib->initialize($config_r);
+                if(!$this->image_lib->resize())
+                {
+                    echo "Failed.".$this->image_lib->display_errors();
+                }  
+                else
+                {
+                    $image=$this->image_lib->dest_image;
+                }
+                
+			}
+
 $this->form_validation->set_rules("name","name","trim");
 $this->form_validation->set_rules("order","order","trim");
-$this->form_validation->set_rules("image","image","trim");
+//$this->form_validation->set_rules("image","image","trim");
 $this->form_validation->set_rules("photoalbum","photoalbum","trim");
 if($this->form_validation->run()==FALSE)
 {
@@ -713,14 +1003,14 @@ else
 {
 $name=$this->input->get_post("name");
 $order=$this->input->get_post("order");
-$image=$this->input->get_post("image");
+//$image=$this->input->get_post("image");
 $photoalbum=$this->input->get_post("photoalbum");
 if($this->photos_model->create($name,$order,$image,$photoalbum)==0)
 $data["alerterror"]="New photos could not be created.";
 else
 $data["alertsuccess"]="photos created Successfully.";
-$data["redirect"]="site/viewphotos";
-$this->load->view("redirect",$data);
+  $data["redirect"]="site/viewphotos?id=".$photoalbum;
+        $this->load->view("redirect2",$data);
 }
 }
 public function editphotos()
@@ -729,6 +1019,7 @@ $access=array("1");
 $this->checkaccess($access);
 $data["page"]="editphotos";
 $data["title"]="Edit photos";
+$data["photoalbum"]=$this->photos_model->getphotoalbumdropdown();    
 $data["before"]=$this->photos_model->beforeedit($this->input->get("id"));
 $this->load->view("template",$data);
 }
@@ -736,10 +1027,11 @@ public function editphotossubmit()
 {
 $access=array("1");
 $this->checkaccess($access);
+   
 $this->form_validation->set_rules("id","id","trim");
 $this->form_validation->set_rules("name","name","trim");
 $this->form_validation->set_rules("order","order","trim");
-$this->form_validation->set_rules("image","image","trim");
+//$this->form_validation->set_rules("image","image","trim");
 $this->form_validation->set_rules("photoalbum","photoalbum","trim");
 if($this->form_validation->run()==FALSE)
 {
@@ -751,17 +1043,55 @@ $this->load->view("template",$data);
 }
 else
 {
-$id=$this->input->get_post("id");
+    $id=$this->input->get_post("id");
 $name=$this->input->get_post("name");
 $order=$this->input->get_post("order");
-$image=$this->input->get_post("image");
+      $config['upload_path'] = './uploads/';
+			$config['allowed_types'] = 'gif|jpg|png|jpeg';
+			$this->load->library('upload', $config);
+			$filename="image";
+			$image="";
+			if ($this->upload->do_upload($filename))
+			{
+				$uploaddata = $this->upload->data();
+				$image=$uploaddata['file_name'];
+//                echo "the image is".$image;
+                $config_r['source_image']='./uploads/' . $uploaddata['file_name'];
+                $config_r['maintain_ratio']=TRUE;
+                $config_t['create_thumb']=FALSE;///add this
+                $config_r['width']=800;
+                $config_r['height']=800;
+                $config_r['quality']=100;
+                //end of configs
+
+                $this->load->library('image_lib', $config_r); 
+                $this->image_lib->initialize($config_r);
+                if(!$this->image_lib->resize())
+                {
+                    echo "Failed.".$this->image_lib->display_errors();
+                }  
+                else
+                {
+                    $image=$this->image_lib->dest_image;
+                }
+                
+			}
+       if($image=="")
+        {
+        $image=$this->photos_model->getimagephoto($id);
+          $image=$image->image;
+//            echo "image is".$image;
+//            
+        }
+
+//$image=$this->input->get_post("image");
 $photoalbum=$this->input->get_post("photoalbum");
 if($this->photos_model->edit($id,$name,$order,$image,$photoalbum)==0)
 $data["alerterror"]="New photos could not be Updated.";
 else
 $data["alertsuccess"]="photos Updated Successfully.";
-$data["redirect"]="site/viewphotos";
-$this->load->view("redirect",$data);
+$data["redirect"]="site/viewphotos?id=".$photoalbum;
+        $this->load->view("redirect2",$data);
 }
 }
 public function deletephotos()
@@ -769,8 +1099,10 @@ public function deletephotos()
 $access=array("1");
 $this->checkaccess($access);
 $this->photos_model->delete($this->input->get("id"));
-$data["redirect"]="site/viewphotos";
-$this->load->view("redirect",$data);
+  $photoalbum=$this->input->get("photoid");
+//    echo "photo album is".$photoalbum;
+ $data["redirect"]="site/viewphotos?id=".$photoalbum;
+    $this->load->view("redirect2",$data);
 }
 public function viewvideoalbum()
 {
@@ -795,7 +1127,7 @@ $elements[1]->sort="1";
 $elements[1]->header="order";
 $elements[1]->alias="order";
 $elements[2]=new stdClass();
-$elements[2]->field="`reliance_videoalbum`.`status`";
+$elements[2]->field="`status`.`name`";
 $elements[2]->sort="1";
 $elements[2]->header="status";
 $elements[2]->alias="status";
@@ -818,7 +1150,7 @@ if($orderby=="")
 $orderby="id";
 $orderorder="ASC";
 }
-$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_videoalbum`");
+$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_videoalbum` INNER JOIN `status` ON `reliance_videoalbum`.`status`=`status`.`id`");
 $this->load->view("json",$data);
 }
 
@@ -828,6 +1160,7 @@ $access=array("1");
 $this->checkaccess($access);
 $data["page"]="createvideoalbum";
 $data["title"]="Create videoalbum";
+$data["status"]=$this->photoalbum_model->getstatusdropdown();
 $this->load->view("template",$data);
 }
 public function createvideoalbumsubmit() 
@@ -861,10 +1194,14 @@ public function editvideoalbum()
 {
 $access=array("1");
 $this->checkaccess($access);
-$data["page"]="editvideoalbum";
+$data["page2"]="block/reliancevideoblock";
 $data["title"]="Edit videoalbum";
+$data["page"]="editvideoalbum";
+$data["title"]="Edit photoalbum";
+$data["status"]=$this->photoalbum_model->getstatusdropdown();
 $data["before"]=$this->videoalbum_model->beforeedit($this->input->get("id"));
-$this->load->view("template",$data);
+  $this->load->view("templatewith2",$data);
+   
 }
 public function editvideoalbumsubmit()
 {
@@ -908,13 +1245,22 @@ public function viewvideos()
 {
 $access=array("1");
 $this->checkaccess($access);
-$data["page"]="viewvideos";
-$data["base_url"]=site_url("site/viewvideosjson");
-$data["title"]="View videos";
-$this->load->view("template",$data);
+       $data["page"]="viewvideos";
+        $data["page2"]="block/reliancevideoblock";
+        $photoalbumid=$this->input->get('id');
+//    echo "video is".$photoalbumid;
+    $data['before']=$this->videoalbum_model->beforeedit($photoalbumid);
+//     $data['before']=$this->campaign_model->beforeedit($photoalbumid);
+//    echo "campaign is".$photoalbumid;
+       $data["base_url"]=site_url("site/viewvideosjson?id=".$photoalbumid);
+//        print_r($data["base_url"]);
+     $data["title"]="View videos";
+        $this->load->view("templatewith2",$data);
+
 }
 function viewvideosjson()
 {
+   $photoalbumid=$this->input->get('id');
 $elements=array();
 $elements[0]=new stdClass();
 $elements[0]->field="`reliance_videos`.`id`";
@@ -932,7 +1278,7 @@ $elements[2]->sort="1";
 $elements[2]->header="order";
 $elements[2]->alias="order";
 $elements[3]=new stdClass();
-$elements[3]->field="`reliance_videos`.`photoalbum`";
+$elements[3]->field="`reliance_videoalbum`.`name`";
 $elements[3]->sort="1";
 $elements[3]->header="photoalbum";
 $elements[3]->alias="photoalbum";
@@ -941,6 +1287,13 @@ $elements[4]->field="`reliance_videos`.`url`";
 $elements[4]->sort="1";
 $elements[4]->header="url";
 $elements[4]->alias="url";
+    
+$elements[5]=new stdClass();
+$elements[5]->field="`reliance_videos`.`photoalbum`";
+$elements[5]->sort="1";
+$elements[5]->header="videoid";
+$elements[5]->alias="videoid";
+    
 $search=$this->input->get_post("search");
 $pageno=$this->input->get_post("pageno");
 $orderby=$this->input->get_post("orderby");
@@ -955,7 +1308,7 @@ if($orderby=="")
 $orderby="id";
 $orderorder="ASC";
 }
-$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_videos`");
+$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_videos` INNER JOIN `reliance_videoalbum` ON `reliance_videos` .`photoalbum`=`reliance_videoalbum`.`id`"," WHERE `reliance_videos`.`photoalbum` ='$photoalbumid' ");
 $this->load->view("json",$data);
 }
 
@@ -973,7 +1326,7 @@ $access=array("1");
 $this->checkaccess($access);
 $this->form_validation->set_rules("name","name","trim");
 $this->form_validation->set_rules("order","order","trim");
-$this->form_validation->set_rules("photoalbum","photoalbum","trim");
+$this->form_validation->set_rules("videoalbum","videoalbum","trim");
 $this->form_validation->set_rules("url","url","trim");
 if($this->form_validation->run()==FALSE)
 {
@@ -986,14 +1339,15 @@ else
 {
 $name=$this->input->get_post("name");
 $order=$this->input->get_post("order");
-$photoalbum=$this->input->get_post("photoalbum");
+$photoalbum=$this->input->get_post("videoalbum");
+//    echo "video id is".$photoalbum;
 $url=$this->input->get_post("url");
 if($this->videos_model->create($name,$order,$photoalbum,$url)==0)
 $data["alerterror"]="New videos could not be created.";
 else
 $data["alertsuccess"]="videos created Successfully.";
-$data["redirect"]="site/viewvideos";
-$this->load->view("redirect",$data);
+  $data["redirect"]="site/viewvideos?id=".$photoalbum;
+        $this->load->view("redirect2",$data);
 }
 }
 public function editvideos()
@@ -1002,6 +1356,7 @@ $access=array("1");
 $this->checkaccess($access);
 $data["page"]="editvideos";
 $data["title"]="Edit videos";
+$data["photoalbum"]=$this->videos_model->getvideoalbumdropdown();  
 $data["before"]=$this->videos_model->beforeedit($this->input->get("id"));
 $this->load->view("template",$data);
 }
@@ -1033,8 +1388,8 @@ if($this->videos_model->edit($id,$name,$order,$photoalbum,$url)==0)
 $data["alerterror"]="New videos could not be Updated.";
 else
 $data["alertsuccess"]="videos Updated Successfully.";
-$data["redirect"]="site/viewvideos";
-$this->load->view("redirect",$data);
+$data["redirect"]="site/viewvideos?id=".$photoalbum;
+ $this->load->view("redirect2",$data);
 }
 }
 public function deletevideos()
@@ -1042,8 +1397,10 @@ public function deletevideos()
 $access=array("1");
 $this->checkaccess($access);
 $this->videos_model->delete($this->input->get("id"));
-$data["redirect"]="site/viewvideos";
-$this->load->view("redirect",$data);
+$photoalbum=$this->input->get("videoid");
+// echo "photo album is".$photoalbum;
+ $data["redirect"]="site/viewvideos?id=".$photoalbum;
+    $this->load->view("redirect2",$data);
 }
 public function viewfeedback()
 {
@@ -1068,7 +1425,7 @@ $elements[1]->sort="1";
 $elements[1]->header="timestamp";
 $elements[1]->alias="timestamp";
 $elements[2]=new stdClass();
-$elements[2]->field="`reliance_feedback`.`salutation`";
+$elements[2]->field="`salutation`.`name`";
 $elements[2]->sort="1";
 $elements[2]->header="salutation";
 $elements[2]->alias="salutation";
@@ -1111,7 +1468,7 @@ if($orderby=="")
 $orderby="id";
 $orderorder="ASC";
 }
-$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_feedback`");
+$data["message"]=$this->chintantable->query($pageno,$maxrow,$orderby,$orderorder,$search,$elements,"FROM `reliance_feedback` INNER JOIN `salutation` ON  `salutation`.`id`=`reliance_feedback`.`salutation`");
 $this->load->view("json",$data);
 }
 
@@ -1119,6 +1476,7 @@ public function createfeedback()
 {
 $access=array("1");
 $this->checkaccess($access);
+$data["salutation"]=$this->feedback_model->getsalutiondropdown();
 $data["page"]="createfeedback";
 $data["title"]="Create feedback";
 $this->load->view("template",$data);
@@ -1127,7 +1485,7 @@ public function createfeedbacksubmit()
 {
 $access=array("1");
 $this->checkaccess($access);
-$this->form_validation->set_rules("timestamp","timestamp","trim");
+//$this->form_validation->set_rules("timestamp","timestamp","trim");
 $this->form_validation->set_rules("salutation","salutation","trim");
 $this->form_validation->set_rules("firstname","firstname","trim");
 $this->form_validation->set_rules("lastname","lastname","trim");
@@ -1143,14 +1501,14 @@ $this->load->view("template",$data);
 }
 else
 {
-$timestamp=$this->input->get_post("timestamp");
+//$timestamp=$this->input->get_post("timestamp");
 $salutation=$this->input->get_post("salutation");
 $firstname=$this->input->get_post("firstname");
 $lastname=$this->input->get_post("lastname");
 $middlename=$this->input->get_post("middlename");
 $email=$this->input->get_post("email");
 $contact=$this->input->get_post("contact");
-if($this->feedback_model->create($timestamp,$salutation,$firstname,$lastname,$middlename,$email,$contact)==0)
+if($this->feedback_model->create($salutation,$firstname,$lastname,$middlename,$email,$contact)==0)
 $data["alerterror"]="New feedback could not be created.";
 else
 $data["alertsuccess"]="feedback created Successfully.";
@@ -1164,6 +1522,7 @@ $access=array("1");
 $this->checkaccess($access);
 $data["page"]="editfeedback";
 $data["title"]="Edit feedback";
+$data["salutation"]=$this->feedback_model->getsalutiondropdown();
 $data["before"]=$this->feedback_model->beforeedit($this->input->get("id"));
 $this->load->view("template",$data);
 }
@@ -1172,7 +1531,7 @@ public function editfeedbacksubmit()
 $access=array("1");
 $this->checkaccess($access);
 $this->form_validation->set_rules("id","id","trim");
-$this->form_validation->set_rules("timestamp","timestamp","trim");
+//$this->form_validation->set_rules("timestamp","timestamp","trim");
 $this->form_validation->set_rules("salutation","salutation","trim");
 $this->form_validation->set_rules("firstname","firstname","trim");
 $this->form_validation->set_rules("lastname","lastname","trim");
@@ -1190,14 +1549,14 @@ $this->load->view("template",$data);
 else
 {
 $id=$this->input->get_post("id");
-$timestamp=$this->input->get_post("timestamp");
+//$timestamp=$this->input->get_post("timestamp");
 $salutation=$this->input->get_post("salutation");
 $firstname=$this->input->get_post("firstname");
 $lastname=$this->input->get_post("lastname");
 $middlename=$this->input->get_post("middlename");
 $email=$this->input->get_post("email");
 $contact=$this->input->get_post("contact");
-if($this->feedback_model->edit($id,$timestamp,$salutation,$firstname,$lastname,$middlename,$email,$contact)==0)
+if($this->feedback_model->edit($id,$salutation,$firstname,$lastname,$middlename,$email,$contact)==0)
 $data["alerterror"]="New feedback could not be Updated.";
 else
 $data["alertsuccess"]="feedback Updated Successfully.";

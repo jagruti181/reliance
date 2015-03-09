@@ -13,6 +13,17 @@ return  0;
 else
 return  $id;
 }
+     public function getvideoalbumdropdown()
+    {
+       	$query=$this->db->query("SELECT * FROM  `reliance_videoalbum`")->result();
+		$return=array(
+		);
+		foreach($query as $row)
+		{
+			$return[$row->id]=$row->name;
+		}
+	  return $return;
+    }
 public function beforeedit($id)
 {
 $this->db->where("id",$id);

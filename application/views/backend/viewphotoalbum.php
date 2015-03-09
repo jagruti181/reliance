@@ -18,6 +18,7 @@ photoalbum Details
 <th data-field="name">name</th>
 <th data-field="order">order</th>
 <th data-field="status">status</th>
+<th data-field="Action">Action</th>
 </tr>
 </thead>
 <tbody>

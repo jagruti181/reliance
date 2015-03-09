@@ -3,6 +3,19 @@ if ( !defined( "BASEPATH" ) )
 exit( "No direct script access allowed" );
 class photoalbum_model extends CI_Model
 {
+         public function getstatusdropdown()
+    {
+       	$query=$this->db->query("SELECT * FROM  `status`")->result();
+		$return=array(
+		);
+		foreach($query as $row)
+		{
+			$return[$row->id]=$row->name;
+		}
+	  return $return;
+    }
+    
+    
 public function create($name,$order,$status)
 {
 $data=array("name" => $name,"order" => $order,"status" => $status);

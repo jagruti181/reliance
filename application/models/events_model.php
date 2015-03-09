@@ -3,6 +3,11 @@ if ( !defined( "BASEPATH" ) )
 exit( "No direct script access allowed" );
 class events_model extends CI_Model
 {
+   public function getimage($id)
+   {
+       $query=$this->db->query("SELECT `image` FROM `reliance_events` WHERE `id`='$id'")->row();
+		return $query;
+   }
 public function create($name,$image,$venue,$description,$photoalbum,$videoalbum)
 {
 $data=array("name" => $name,"image" => $image,"venue" => $venue,"description" => $description,"photoalbum" => $photoalbum,"videoalbum" => $videoalbum);

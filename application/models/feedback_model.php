@@ -3,9 +3,9 @@ if ( !defined( "BASEPATH" ) )
 exit( "No direct script access allowed" );
 class feedback_model extends CI_Model
 {
-public function create($timestamp,$salutation,$firstname,$lastname,$middlename,$email,$contact)
+public function create($salutation,$firstname,$lastname,$middlename,$email,$contact)
 {
-$data=array("timestamp" => $timestamp,"salutation" => $salutation,"firstname" => $firstname,"lastname" => $lastname,"middlename" => $middlename,"email" => $email,"contact" => $contact);
+$data=array("salutation" => $salutation,"firstname" => $firstname,"lastname" => $lastname,"middlename" => $middlename,"email" => $email,"contact" => $contact);
 $query=$this->db->insert( "reliance_feedback", $data );
 $id=$this->db->insert_id();
 if(!$query)
@@ -13,6 +13,18 @@ return  0;
 else
 return  $id;
 }
+   
+        public function getsalutiondropdown()
+    {
+       	$query=$this->db->query("SELECT * FROM  `salutation`")->result();
+		$return=array(
+		);
+		foreach($query as $row)
+		{
+			$return[$row->id]=$row->name;
+		}
+	  return $return;
+    }
 public function beforeedit($id)
 {
 $this->db->where("id",$id);
@@ -24,9 +36,9 @@ $this->db->where("id",$id);
 $query=$this->db->get("reliance_feedback")->row();
 return $query;
 }
-public function edit($id,$timestamp,$salutation,$firstname,$lastname,$middlename,$email,$contact)
+public function edit($id,$salutation,$firstname,$lastname,$middlename,$email,$contact)
 {
-$data=array("timestamp" => $timestamp,"salutation" => $salutation,"firstname" => $firstname,"lastname" => $lastname,"middlename" => $middlename,"email" => $email,"contact" => $contact);
+$data=array("salutation" => $salutation,"firstname" => $firstname,"lastname" => $lastname,"middlename" => $middlename,"email" => $email,"contact" => $contact);
 $this->db->where( "id", $id );
 $query=$this->db->update( "reliance_feedback", $data );
 return 1;
